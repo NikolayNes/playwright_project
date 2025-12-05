@@ -1,4 +1,5 @@
-const locators = require('../locators/loginLocators');
+import loginLocators from '../locators/loginLocators.js';
+
 
 class LoginPage {
     /**
@@ -6,13 +7,16 @@ class LoginPage {
      */
     constructor(page) {
         this.page = page;
-        this.usernameInput = page.locator(locators.usernameInput);
-        this.passwordInput = page.locator(locators.passwordInput);
-        this.loginButton = page.locator(locators.loginButton);
+        // use locator factories from `loginLocators`
+        this.usernameInput = loginLocators.usernameInput(page);
+        this.passwordInput = loginLocators.passwordInput(page);
+        this.loginButton = loginLocators.loginButton(page);
+        this.errorTitleMessage = loginLocators.errorTitleMessage(page);
+        this.errorTextMessage = loginLocators.errorTextMessage(page);
     }
 
     async visit() {
-        await this.page.goto('/login');
+        await this.page.goto('/');
     }
 
     async enterUsername(username) {
@@ -26,6 +30,18 @@ class LoginPage {
     async clickLogin() {
         await this.loginButton.click();
     }
+
+    /**
+     * Convenience method: visit page, enter credentials, and click login
+     * @param {string} username
+     * @param {string} password
+     */
+    async loginAs(username, password) {
+        await this.visit();
+        await this.enterUsername(username);
+        await this.enterPassword(password);
+        await this.clickLogin();
+    }
 }
 
-module.exports = LoginPage;
+export default LoginPage;
