@@ -1,10 +1,11 @@
-const {test, expect} = require('@playwright/test');
-const LoginPage = require('../pages/loginPage');
+import { test, expect } from '@playwright/test';
+import LoginPage from '../pages/loginPage.js';
+import staticTexts from '../fixtures/staticTexts.js';
 
 test.describe('Login Page Tests', () => {
     let loginPage;
 
-    test.beforeEach(async ({page}) => {
+    test.beforeEach(async ({ page }) => {
         loginPage = new LoginPage(page);
         await loginPage.visit();
     });
@@ -15,22 +16,15 @@ test.describe('Login Page Tests', () => {
         await expect(loginPage.loginButton).toBeVisible();
     });
 
-    test('should login with valid credentials', async () => {
-        await loginPage.enterUsername('validUser');
-        await loginPage.enterPassword('validPassword');
-        await loginPage.clickLogin();
-
-        // Assuming successful login redirects to dashboard
-        await expect(loginPage.page).toHaveURL('/dashboard');
+    test('should show error message with invalid credentials', async () => {
+         console.log(process.env.INVALID_USER);   
+          console.log(process.env.INVALID_PASS);   
+        await loginPage.loginAs(process.env.INVALID_USER, process.env.INVALID_PASS);
+        await loginPage.errorTitleMessage.waitFor({ state: 'visible' });
+        await expect(loginPage.errorTitleMessage).toBeVisible();
+        await expect(loginPage.errorTitleMessage).toHaveText(staticTexts.auth.errorTitle);
+        await expect(loginPage.errorTextMessage).toBeVisible();
+        await expect(loginPage.errorTextMessage).toHaveText(staticTexts.auth.errorText);
+        
     });
-
-    test('should show error with invalid credentials', async () => {
-        await loginPage.enterUsername('invalidUser');
-        await loginPage.enterPassword('invalidPassword');
-        await loginPage.clickLogin();
-
-        const errorMessage = loginPage.page.locator('.error-message');
-        await expect(errorMessage).toBeVisible();
-        await expect(errorMessage).toHaveText('Invalid username or password.');
-    });
-});
+})

@@ -1,7 +1,13 @@
+/**
+ * Playwright locator factories (ESM)
+ * Usage in page objects: `this.usernameInput = loginLocators.usernameInput(page);`
+ */
 const loginLocators = {
-  usernameInput: '#username',
-  passwordInput: '#password',
-  loginButton: 'button[type="submit"]',
+  usernameInput: (page) => page.locator('input[name="username"]'),
+  passwordInput: (page) => page.locator('input[name="password"]'),
+  loginButton: (page) => page.getByRole('button', { name: 'Log In' }),
+  errorTitleMessage: (page) => page.locator('h1.title'),
+  errorTextMessage: (page) => page.locator('.error')
 };
 
-module.exports = loginLocators;
+export default loginLocators;
