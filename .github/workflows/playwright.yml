@@ -1,0 +1,46 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    
+    - name: Run Playwright tests
+      # Pass GitHub Secrets as environment variables to the tests
+      env:
+        INVALID_USER: ${{ secrets.INVALID_USER || 'wrongUser' }}
+        INVALID_PASS: ${{ secrets.INVALID_PASS || 'wrongPass' }}
+        ADMIN_USER: ${{ secrets.ADMIN_USER || 'admin@parabank.com' }}
+        ADMIN_PASS: ${{ secrets.ADMIN_PASS || 'admin123' }}
+        USER_LOGIN: ${{ secrets.USER_LOGIN || 'user@parabank.com' }}
+        USER_PASSWORD: ${{ secrets.USER_PASSWORD || 'user123' }}
+        MOD_USER: ${{ secrets.MOD_USER || 'moderator@parabank.com' }}
+        MOD_PASS: ${{ secrets.MOD_PASS || 'moderator123' }}
+        GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME || 'NikolayNes' }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        CI: true
+      run: npx playwright test
+    
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30

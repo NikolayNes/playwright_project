@@ -3,9 +3,10 @@ import { defineConfig, devices } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 
-// Load environment variables from .env file
+// Load environment variables from .env file (only in local development)
+// In CI/CD, GitHub Actions passes secrets as environment variables directly
 const envPath = path.resolve('.', '.env');
-if (fs.existsSync(envPath)) {
+if (fs.existsSync(envPath) && !process.env.CI) {
   const envContent = fs.readFileSync(envPath, 'utf-8');
   envContent.split('\n').forEach(line => {
     const [key, value] = line.split('=');
@@ -27,7 +28,8 @@ if (fs.existsSync(envPath)) {
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: './e2e',
+  testDir: './',
+  testMatch: ['**/*.spec.js', '**/*.test.js'],
   /* Run tests in files in parallel */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
